@@ -1,5 +1,5 @@
 import './App.css';
-import { getAuth, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
+import { getAuth, GithubAuthProvider, GoogleAuthProvider, signInWithPopup, signOut } from "firebase/auth";
 import app from './firebase.init';
 import { useState } from 'react';
 
@@ -7,11 +7,12 @@ const auth = getAuth(app);
 
 function App() {
   const [user, setUser] = useState({});
-  const provider = new GoogleAuthProvider();
+  const googleProvider = new GoogleAuthProvider();
+  const githubProvider = new GithubAuthProvider();
 
   const handleGoogleSignIn = () => {
-   
-    signInWithPopup(auth, provider)
+
+    signInWithPopup(auth, googleProvider)
       .then(result => {
         const user = result.user;
         setUser(user);
@@ -22,24 +23,39 @@ function App() {
       })
   }
 
-  const handleSignOut = () =>{
-    signOut(auth)
-    .then( () =>{
-      setUser({});
+  const handleGithubSignIn = () =>{
+    signInWithPopup(auth, githubProvider)
+    .then(result =>{
+      const user = result.user;
+      setUser(user);
+      console.log(user)
     })
-    .catch(error =>{
-      setUser({});
-    });
+    .catch(error => {
+      console.error(error);
+    })
+  }
+
+  const handleSignOut = () => {
+    signOut(auth)
+      .then(() => {
+        setUser({});
+      })
+      .catch(error => {
+        setUser({});
+      });
   }
 
   return (
     <div className="App">
-      {/* { condition ? true : flase} */}
+      {/* { condition ? true : false} */}
       {
-        user.email ? <button onClick={handleSignOut}>Sign out</button>
-        :
-        <button onClick={handleGoogleSignIn}>Google Sign In</button>
-        
+        user.uid ? <button onClick={handleSignOut}>Sign out</button>
+          :
+          <>
+            <button onClick={handleGoogleSignIn}>Google Sign In</button>
+            <button onClick={handleGithubSignIn}>Github Sign In</button>
+          </>
+
       }
       <h2>Name: {user.displayName}</h2>
       <p>I know your email address: {user.email}</p>
